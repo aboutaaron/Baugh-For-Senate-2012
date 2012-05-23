@@ -16,16 +16,18 @@ filer_id =  page.css('#_ctl3_lblFilerId').text
 
 filer_phone =  page.css('#_ctl3_lblFilerAddress').text
 
+table = page.css('#_ctl3_lblFilerAddressTable + table')
+
 # Nitty gritty
 
-current_status = page.css('#_ctl3_lblFilerAddressTable + table tr:nth-child(2) td:nth-child(2)').text
-last_report_date = page.css('#_ctl3_lblFilerAddressTable + table tr:nth-child(3) td:nth-child(2)').text
-reporting_period = page.css('#_ctl3_lblFilerAddressTable + table tr:nth-child(4) td:nth-child(2)').text
-contributions_this_period = page.css('#_ctl3_lblFilerAddressTable + table tr:nth-child(5) td:nth-child(2)').text
-total_contributions_this_period = page.css('#_ctl3_lblFilerAddressTable + table tr:nth-child(6) td:nth-child(2)').text
-expenditures_this_period = page.css('#_ctl3_lblFilerAddressTable + table tr:nth-child(7) td:nth-child(2)').text
-total_expenditures_this_period = page.css('#_ctl3_lblFilerAddressTable + table tr:nth-child(8) td:nth-child(2)').text
-ending_cash = page.css('#_ctl3_lblFilerAddressTable + table tr:nth-child(9) td:nth-child(2)').text
+current_status = table.css('tr:nth-child(2) td:nth-child(2)').text
+last_report_date = table.css('tr:nth-child(3) td:nth-child(2)').text
+reporting_period = table.css('tr:nth-child(4) td:nth-child(2)').text
+contributions_this_period = table.css('tr:nth-child(5) td:nth-child(2)').text
+total_contributions_this_period = table.css('tr:nth-child(6) td:nth-child(2)').text
+expenditures_this_period = table.css('tr:nth-child(7) td:nth-child(2)').text
+total_expenditures_this_period = table.css('tr:nth-child(8) td:nth-child(2)').text
+ending_cash = table.css('tr:nth-child(9) td:nth-child(2)').text
 
 
 # Print information to terminal
