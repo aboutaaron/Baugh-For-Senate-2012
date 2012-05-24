@@ -32,3 +32,14 @@ page.css("table").each do |contributions|
 	puts "Transaction ID: " + contributions.css('tr:nth-child(6) td:nth-child(5)').text
 	puts ""
 end
+
+class Scraper
+	def initialize(url)
+		@url = url
+	end
+
+	def get
+		html = open(url).read
+		# Work here
+	end
+end
