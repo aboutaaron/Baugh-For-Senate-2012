@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'open-uri'
 require 'nokogiri'
+require 'date'
 
 # Homepage of Elected Officials and Candidates running for California State Senate 2012
 campaign_data =  Nokogiri::HTML(open('http://cal-access.sos.ca.gov/Campaign/Candidates/'))
@@ -17,7 +18,6 @@ campaign_data.css('a.sublink2').each do |candidates|
 	# Confirming we grabbed the link in case of a slow-ass connection (Hello, Starbucks).
 	puts "Just grabbed the page for #{candidate_name}"
 	puts "the URL is #{link_to_candidate}"
-	puts
 
 	# Opening the link
 	candidate_page = Nokogiri::HTML(open("#{link_to_candidate}"))
@@ -25,6 +25,7 @@ campaign_data.css('a.sublink2').each do |candidates|
 	#####################
 	# Candidate Main Page
 	#####################
+
 	political_party = candidate_page.css('span.hdr15').text
 	current_status = candidate_page.css('td tr:nth-child(2) td:nth-child(2) .txt7').text
 	last_report_date = candidate_page.css('td tr:nth-child(3) td:nth-child(2) .txt7').text
@@ -36,10 +37,16 @@ campaign_data.css('a.sublink2').each do |candidates|
 	ending_cash = candidate_page.css('td tr:nth-child(8) td:nth-child(2) .txt7').text
 	
 	#####################
+	# Hash Browns
+	#####################
+
+
+	#####################
 	# Run
 	#####################
 	puts "Info for #{candidate_name}."
 	puts
+	puts "Political Party: #{political_party}"
 	puts "Current Status: #{current_status}"
 	puts "Last Report Date This Session: #{last_report_date}"
 	puts "Reporting Period: #{reporting_period}"
@@ -49,5 +56,13 @@ campaign_data.css('a.sublink2').each do |candidates|
 	puts "Total Expenditures #{reporting_period}: #{total_expenditures_this_period}"
 	puts "Ending Cash: #{ending_cash}"
 	puts
-
 end
+
+puts "A list of candidates without data:"
+puts
+campaign_data.css('.txt7').each do |other|
+	puts other.text
+end
+
+puts
+puts "Thanks for Playing."
