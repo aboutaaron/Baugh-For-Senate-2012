@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'open-uri'
 require 'nokogiri'
-require 'date'
 
 # Homepage of Elected Officials and Candidates running for California State Senate 2012
 campaign_data =  Nokogiri::HTML(open('http://cal-access.sos.ca.gov/Campaign/Candidates/'))
