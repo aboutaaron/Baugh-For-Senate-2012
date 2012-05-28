@@ -1,19 +1,21 @@
 require 'rubygems'
 require 'open-uri'
 require 'nokogiri'
-require 'date'
 
 # Homepage of Elected Officials and Candidates running for California State Senate 2012
 campaign_data =  Nokogiri::HTML(open('http://cal-access.sos.ca.gov/Campaign/Candidates/'))
 
+##########################
 # Creating Candidate Class
+##########################
 class Candidate
-	def initialize(url)
-		@url = url
+	def initialize(summary_url)
+		@summary_url = summary_url
+		# @contributors_url = contributors_url
 	end
 
-	def get
-		candidate_page = Nokogiri::HTML(open(@url))
+	def get_summary
+		candidate_page = Nokogiri::HTML(open(@summary_url))
 
 		{
 			:political_party => candidate_page.css('span.hdr15').text,
@@ -29,8 +31,9 @@ class Candidate
 	end
 end
 
-
+###############
 # Begin scraper
+###############
 campaign_data.css('a.sublink2').each do |candidates|
 	
 	# Setting some variables
@@ -43,10 +46,13 @@ campaign_data.css('a.sublink2').each do |candidates|
 	puts "the URL is #{link_to_candidate}"
 
 	# Initialize Candidate class and print Hash
-	p Candidate.new("http://cal-access.sos.ca.gov" + candidates["href"]).get
+	p Candidate.new("http://cal-access.sos.ca.gov" + candidates["href"]).get_summary.get_contributions
 	puts
 end
 
+###########
+# Finish up
+###########
 puts "A list of candidates without data:"
 puts
 campaign_data.css('.txt7').each do |other|
