@@ -46,7 +46,7 @@ campaign_data.css('a.sublink2').each do |candidates|
 	puts "the URL is #{link_to_candidate}"
 
 	# Initialize Candidate class and print Hash
-	p Candidate.new("http://cal-access.sos.ca.gov" + candidates["href"]).get_summary.get_contributions
+	p Candidate.new("#{link_to_candidate}").get_summary
 	puts
 end
 
