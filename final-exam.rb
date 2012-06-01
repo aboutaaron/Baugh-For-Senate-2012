@@ -19,14 +19,14 @@ class Candidate
 
 		{
 			:political_party => candidate_page.css('span.hdr15').text,
-			:current_status => candidate_page.css('td tr:nth-child(2) td:nth-child(2) .txt7:first').text,
-			:last_report_date => candidate_page.css('td tr:nth-child(3) td:nth-child(2) .txt7:first').text,
-			:reporting_period => candidate_page.css('td tr:nth-child(4) td:nth-child(2) .txt7:first').text,
-			:contributions_this_period => candidate_page.css('td tr:nth-child(5) td:nth-child(2) .txt7:first').text.gsub(/[$,](?=\d)/, ''),
-			:total_contributions_this_period => candidate_page.css('td tr:nth-child(6) td:nth-child(2) .txt7:first').text.gsub(/[$,](?=\d)/, ''),
-			:expenditures_this_period => candidate_page.css('td tr:nth-child(7) td:nth-child(2) .txt7:first').text.gsub(/[$,](?=\d)/, ''),
-			:total_expenditures_this_period => candidate_page.css('td tr:nth-child(8) td:nth-child(2) .txt7:first').text.gsub(/[$,](?=\d)/, ''),
-			:ending_cash => candidate_page.css('td tr:nth-child(9) td:nth-child(2) .txt7:first').text.gsub(/[$,](?=\d)/, '')
+			:current_status => candidate_page.css('td tr:nth-child(2) td:nth-child(2) .txt7')[0].text,
+			:last_report_date => candidate_page.css('td tr:nth-child(3) td:nth-child(2) .txt7')[0].text,
+			:reporting_period => candidate_page.css('td tr:nth-child(4) td:nth-child(2) .txt7')[0].text,
+			:contributions_this_period => candidate_page.css('td tr:nth-child(5) td:nth-child(2) .txt7')[0].text.gsub(/[$,](?=\d)/, ''),
+			:total_contributions_this_period => candidate_page.css('td tr:nth-child(6) td:nth-child(2) .txt7')[0].text.gsub(/[$,](?=\d)/, ''),
+			:expenditures_this_period => candidate_page.css('td tr:nth-child(7) td:nth-child(2) .txt7')[0].text.gsub(/[$,](?=\d)/, ''),
+			:total_expenditures_this_period => candidate_page.css('td tr:nth-child(8) td:nth-child(2) .txt7')[0].text.gsub(/[$,](?=\d)/, ''),
+			:ending_cash => candidate_page.css('td tr:nth-child(9) td:nth-child(2) .txt7')[0].text.gsub(/[$,](?=\d)/, '')
 		}
 	end
 end
@@ -48,6 +48,14 @@ campaign_data.css('a.sublink2').each do |candidates|
 	# Initialize Candidate class and print Hash
 	p Candidate.new("#{link_to_candidate}").get_summary
 	puts
+
+	# Some work
+	my_candidate = Nokogiri::HTML(open(link_to_candidate))
+	grab_contributor_page = my_candidate.css("a.sublink6")[0]['href']
+	contributions_received_url = "&view=received"
+	contributor_page = Nokogiri::HTML(open(cal_access_url + grab_contributor_page))
+	my_new_page = Nokogiri::HTML(open("#{contributor_page} + #{contributions_received_url}"))
+	puts my_new_page.css("#_ctl3_lblDownload").text
 end
 
 ###########
