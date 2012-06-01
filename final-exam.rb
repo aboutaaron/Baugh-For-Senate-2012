@@ -52,10 +52,16 @@ campaign_data.css('a.sublink2').each do |candidates|
 	# Some work
 	my_candidate = Nokogiri::HTML(open(link_to_candidate))
 	grab_contributor_page = my_candidate.css("a.sublink6")[0]['href']
-	contributions_received_url = "&view=received"
-	contributor_page = Nokogiri::HTML(open(cal_access_url + grab_contributor_page))
-	my_new_page = Nokogiri::HTML(open("#{contributor_page} + #{contributions_received_url}"))
-	puts my_new_page.css("#_ctl3_lblDownload").text
+	contributor_page = Nokogiri::HTML(open("#{cal_access_url}" + "#{grab_contributor_page}"))
+	# Opening 25th indexed anchor element 
+	# Contributions received
+	grab_contributions_page = contributor_page.css("a")[25]["href"]
+	# Boom
+	contributions_received = Nokogiri::HTML(open("#{cal_access_url}" + "#{grab_contributions_page}"))
+	puts contributions_received.css("#_ctl3_lblDownload").text
+
+	
+
 end
 
 ###########
