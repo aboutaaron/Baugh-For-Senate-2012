@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'open-uri'
 require 'nokogiri'
+require 'csv'
 
 # Homepage of Elected Officials and Candidates running for California State Senate 2012
 campaign_data =  Nokogiri::HTML(open('http://cal-access.sos.ca.gov/Campaign/Candidates/'))
@@ -49,7 +50,10 @@ campaign_data.css('a.sublink2').each do |candidates|
 	p Candidate.new("#{link_to_candidate}").get_summary
 	puts
 
-	# Some work
+	##############################################
+	# PLEASE WORK FOR THE LOVE OF ALL THAT IS HOLY
+	##############################################
+
 	my_candidate = Nokogiri::HTML(open(link_to_candidate))
 	grab_contributor_page = my_candidate.css("a.sublink6")[0]['href']
 	contributor_page = Nokogiri::HTML(open("#{cal_access_url}" + "#{grab_contributor_page}"))
@@ -58,10 +62,12 @@ campaign_data.css('a.sublink2').each do |candidates|
 	grab_contributions_page = contributor_page.css("a")[25]["href"]
 	# Boom
 	contributions_received = Nokogiri::HTML(open("#{cal_access_url}" + "#{grab_contributions_page}"))
-	puts contributions_received.css("#_ctl3_lblDownload").text
+	#puts contributions_received.css("#_ctl3_lblDownload").text
+	proper_url = contributions_received.css("a#_ctl3_link")[0]["href"]
 
-	
-
+	CSV.parse(open("#{cal_access_url}/" + "#{proper_url}").read, :headers => true).foreach.map do |row|
+		row.to_hash
+	end
 end
 
 ###########
@@ -70,7 +76,9 @@ end
 puts "A list of candidates without data:"
 puts
 campaign_data.css('.txt7').each do |other|
-	puts other.text
+	{
+		:dataless_candidate => other.text
+	}
 end
 
 puts
