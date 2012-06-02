@@ -10,13 +10,12 @@ campaign_data =  Nokogiri::HTML(open('http://cal-access.sos.ca.gov/Campaign/Cand
 # Creating Candidate Class
 ##########################
 class Candidate
-	def initialize(summary_url)
-		@summary_url = summary_url
-		# @contributors_url = contributors_url
+	def initialize(url)
+		@url = url
 	end
 
 	def get_summary
-		candidate_page = Nokogiri::HTML(open(@summary_url))
+		candidate_page = Nokogiri::HTML(open(@url))
 
 		{
 			:political_party => candidate_page.css('span.hdr15').text,
@@ -29,6 +28,16 @@ class Candidate
 			:total_expenditures_this_period => candidate_page.css('td tr:nth-child(8) td:nth-child(2) .txt7')[0].text.gsub(/[$,](?=\d)/, ''),
 			:ending_cash => candidate_page.css('td tr:nth-child(9) td:nth-child(2) .txt7')[0].text.gsub(/[$,](?=\d)/, '')
 		}
+	end
+
+	def get_contributors
+		contributions_received = Nokogiri::HTML(open(@url))
+
+		contributions_received.css("td").each do |contributors|
+			{
+				:name_of_contributor => contributors.css("tr:nth-child(2) td:nth-child(1) .txt7").text
+			}
+		end
 	end
 end
 
@@ -45,29 +54,26 @@ campaign_data.css('a.sublink2').each do |candidates|
 	# Confirming we grabbed the link in case of a slow-ass connection (Hello, Starbucks).
 	puts "Just grabbed the page for #{candidate_name}"
 	puts "the URL is #{link_to_candidate}"
-
-	# Initialize Candidate class and print Hash
+	puts
+	# Initialize Candidate class and print Hash of summary data
 	p Candidate.new("#{link_to_candidate}").get_summary
 	puts
 
-	##############################################
-	# PLEASE WORK FOR THE LOVE OF ALL THAT IS HOLY
-	##############################################
-
+	# Drilling down the page...
 	my_candidate = Nokogiri::HTML(open(link_to_candidate))
 	grab_contributor_page = my_candidate.css("a.sublink6")[0]['href']
 	contributor_page = Nokogiri::HTML(open("#{cal_access_url}" + "#{grab_contributor_page}"))
-	# Opening 25th indexed anchor element 
-	# Contributions received
+	# Opening 25th indexed anchor element - Contributions received
 	grab_contributions_page = contributor_page.css("a")[25]["href"]
-	# Boom
-	contributions_received = Nokogiri::HTML(open("#{cal_access_url}" + "#{grab_contributions_page}"))
-	#puts contributions_received.css("#_ctl3_lblDownload").text
-	proper_url = contributions_received.css("a#_ctl3_link")[0]["href"]
+	
+	# Grabbing Contributor data
+	#proper_url = contributions_received.css("a#_ctl3_link")[0]["href"]
 
-	CSV.parse(open("#{cal_access_url}/" + "#{proper_url}").read, :headers => true).foreach.map do |row|
-		row.to_hash
-	end
+	#CSV.parse(open("#{cal_access_url}/" + "#{proper_url}").read, :headers => true).foreach.map do |row|
+		#row.to_hash
+	#end
+
+	p Candidate.new("#{cal_access_url}" + "#{grab_contributions_page}").get_contributors
 end
 
 ###########
