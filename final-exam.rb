@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'open-uri'
 require 'nokogiri'
-require 'csv'
 
 # Homepage of Elected Officials and Candidates running for California State Senate 2012
 campaign_data =  Nokogiri::HTML(open('http://cal-access.sos.ca.gov/Campaign/Candidates/'))
@@ -12,10 +11,12 @@ campaign_data =  Nokogiri::HTML(open('http://cal-access.sos.ca.gov/Campaign/Cand
 class Candidate
 	def initialize(url)
 		@url = url
+		@cal_access_url = "http://cal-access.sos.ca.gov"
+		@nodes =  Nokogiri::HTML(open(@cal_access_url + @url))
 	end
 
 	def get_summary
-		candidate_page = Nokogiri::HTML(open(@url))
+		candidate_page = @nodes
 
 		{
 			:political_party => candidate_page.css('span.hdr15').text,
@@ -31,49 +32,47 @@ class Candidate
 	end
 
 	def get_contributors
-		contributions_received = Nokogiri::HTML(open(@url))
+		contributions_received = @nodes
+		grab_contributor_page = @nodes.css("a.sublink6")[0]['href']
+	    contributor_page = Nokogiri::HTML(open(@cal_access_url + grab_contributor_page))
+	    # Opening 25th indexed anchor element - Contributions received
+	    grab_contributions_page = contributor_page.css("a")[25]["href"]
+	    contributions_received = Nokogiri::HTML(open(@cal_access_url + grab_contributions_page))
+	    puts
+	    puts "#{@cal_access_url}" + "#{grab_contributions_page}"
+	    puts
 
-		contributions_received.css("td").each do |contributors|
-			{
-				:name_of_contributor => contributors.css("tr:nth-child(2) td:nth-child(1) .txt7").text
-			}
+	    contributions_received.css("table").reduce([]) do |memo, contributors|
+	    	begin
+
+	    		memo << {
+					:name_of_contributor => contributions_received.css("tr:nth-child(2) td:nth-child(1) .txt7:first")[0].text
+				}
+
+			rescue NoMethodError => e
+				puts e.message
+				puts "Error on #{contributors}"
+			end
+			memo
 		end
 	end
+
 end
 
 ###############
 # Begin scraper
 ###############
 campaign_data.css('a.sublink2').each do |candidates|
-	
-	# Setting some variables
-	candidate_name =  candidates.text
-	cal_access_url = "http://cal-access.sos.ca.gov"
-	link_to_candidate = cal_access_url + candidates["href"]
-
 	# Confirming we grabbed the link in case of a slow-ass connection (Hello, Starbucks).
-	puts "Just grabbed the page for #{candidate_name}"
-	puts "the URL is #{link_to_candidate}"
-	puts
+	puts "Just grabbed the page for " + candidates.text
 	# Initialize Candidate class and print Hash of summary data
-	p Candidate.new("#{link_to_candidate}").get_summary
+	candidate = Candidate.new(candidates["href"])
+	p candidate.get_summary
 	puts
-
-	# Drilling down the page...
-	my_candidate = Nokogiri::HTML(open(link_to_candidate))
-	grab_contributor_page = my_candidate.css("a.sublink6")[0]['href']
-	contributor_page = Nokogiri::HTML(open("#{cal_access_url}" + "#{grab_contributor_page}"))
+	p candidate.get_contributors
 	# Opening 25th indexed anchor element - Contributions received
-	grab_contributions_page = contributor_page.css("a")[25]["href"]
-	
-	# Grabbing Contributor data
-	#proper_url = contributions_received.css("a#_ctl3_link")[0]["href"]
-
-	#CSV.parse(open("#{cal_access_url}/" + "#{proper_url}").read, :headers => true).foreach.map do |row|
-		#row.to_hash
-	#end
-
-	p Candidate.new("#{cal_access_url}" + "#{grab_contributions_page}").get_contributors
+	# grab_contributions_page = contributor_page.css("a")[25]["href"]
+	puts
 end
 
 ###########
