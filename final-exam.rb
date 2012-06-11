@@ -34,7 +34,7 @@ class Candidate
 	def get_contributors
 		contributions_received = @nodes
 		grab_contributor_page = @nodes.css("a.sublink6")[0]['href']
-	    contributor_page = Nokogiri::HTML(open(@cal_access_url + grab_contributor_page))
+		contributor_page = Nokogiri::HTML(open(@cal_access_url + grab_contributor_page))
 	    # Opening 25th indexed anchor element - Contributions received
 	    grab_contributions_page = contributor_page.css("a")[25]["href"]
 	    contributions_received = Nokogiri::HTML(open(@cal_access_url + grab_contributions_page))
@@ -46,7 +46,7 @@ class Candidate
 	    	begin
 
 	    		memo << {
-					:name_of_contributor => contributions_received.css("tr:nth-child(2) td:nth-child(1) .txt7:first")[0].text
+					:name_of_contributor => contributions_received.css("table:nth-child(57) tr:nth-child(2) td:nth-child(1) .txt7").text
 				}
 
 			rescue NoMethodError => e
